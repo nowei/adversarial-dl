@@ -8,6 +8,19 @@
   <style>
   </style>
 </head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type=text/javascript>
+        $(function() {
+          $('a#test').bind('click', function() {
+            $.getJSON('/background_process_test',
+                function(data) {
+              //do nothing
+            });
+            return false;
+          });
+        });
+</script>
+
 <body>
   <div id="header"></div>
   Henlo, birb
