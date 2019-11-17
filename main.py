@@ -21,7 +21,7 @@ def UI_display(name=None):
     return render_template('landing.html', image=image_en.decode('ascii'), noise=noise_en.decode('ascii'))
 
 # @app.route('/generate_new_noise')
-def generate_noise(width=32, height=32, scale=50/255):
+def generate_noise(width=32, height=32, scale=100/255):
     image = Image.new("RGB", (width, height), 255)
     random_grid = [*map(lambda x: (int((random() * 2 - 1) * 256 * scale), int((random() * 2 - 1) * 256 * scale), int((random() * 2 - 1) * 256 * scale)) , [0] * width * height)]
     image.putdata(random_grid)
