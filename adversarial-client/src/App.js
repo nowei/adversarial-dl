@@ -36,30 +36,60 @@ class App extends React.Component {
 
     _handleSubmit(e) {
         e.preventDefault();
-        console.warn(this.state)
-        // this.upload(this.state.file)
+        // console.warn(this.state)
+        this.upload(this.state.file).then(data => console.error(data));
     }
 
-    upload(imageFile) {
-        return new Promise((resolve, reject) => {
-            let imageFormData = new FormData();
+    async upload(imageFile) {
+        // return new Promise((resolve, reject) => {
+        //     let imageFormData = new FormData();
         
-            imageFormData.append('imageFile', imageFile);
+        //     imageFormData.append('imageFile', imageFile);
             
-            var xhr = new XMLHttpRequest();
+        //     var xhr = new XMLHttpRequest();
             
-            xhr.open('post', '/upload', true);
+        //     xhr.open('post', '/upload', true);
             
-            xhr.onload = function () {
-            if (this.status === 200) {
-                resolve(this.response);
-            } else {
-                reject(this.statusText);
+        //     xhr.onload = function () {
+        //     if (this.status === 200) {
+        //         resolve(this.response);
+        //     } else {
+        //         reject(this.statusText);
+        //     }
+        //     };
+            
+        //     xhr.send(imageFormData);
+        // });
+        const formData = {
+            'content': this.state.file,
+            'picName': this.state.file.name,
+        }//new FormData();
+
+        // formData.append('content', this.state.file);
+        // formData.append('picName', this.state.imagePreviewUrl);
+        // formData.append('file', this.state.file);
+
+        const options = {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json',
             }
-            };
-            
-            xhr.send(imageFormData);
-        });
+        };
+
+        console.warn(options)
+
+        const response = await fetch('http://127.0.0.1:5000/images', options);
+        const responseData = await response.text()
+        return responseData;
+        
+    }
+
+    async getDataAsync(name) {
+        let response = await fetch(`https://api.github.com/users/${name}`);
+        let data = await response.json()
+        return data;
     }
 
     render() {

@@ -1,7 +1,9 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request, abort
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 tasks = [
     {
@@ -42,7 +44,7 @@ def create_task():
         'picName': request.json['picName'],
         'content': request.json['content'],
         'epsilon': request.json.get("epsilon", 0.003),
-        'target': request.json.get("target", 512),
+        'target': request.json.get("target", -1),
         'ogClass': -1,
         'adClass': -1,
         'rbClass': -1,
