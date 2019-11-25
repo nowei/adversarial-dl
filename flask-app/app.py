@@ -3,12 +3,17 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 import torch
 from PIL import Image
+from io import BytesIO
+import base64
 from torchvision import transforms
 import torch.nn.functional as F
 import torch
+import torch.nn as nn
 
 app = Flask(__name__)
 CORS(app)
+
+loss_fn = nn.CrossEntropyLoss()
 
 model = torch.hub.load('pytorch/vision:v0.4.2', 'resnet18', pretrained=True)
 model.eval()
@@ -26,14 +31,14 @@ with open('imagenet1000_clsidx_to_labels.txt', 'r') as f:
     classes = eval(f.read())
 
 
-def proj_grad_desc(x, y, model, step_size=0.01, epsilon=4 * 1/255, steps=50, target=None):
+def proj_grad_desc(x, y, model, step_size=0.05, epsilon=4 * 1/255, steps=50, target=None):
     adversary = x.clone().detach().requires_grad_(True).to(x.device)
     max_diff = x + epsilon
     min_diff = x - epsilon
     for i in range(steps):
         curr = adversary.clone().detach().requires_grad_(True).to(adversary.device)
         output = model(curr)
-        loss = loss_fn(output, target.squeeze() if target else y.squeeze())
+        loss = loss_fn(output, target if target else y)
         loss.backward()
         with torch.no_grad():
             curr_grad = curr.grad * step_size 
@@ -42,28 +47,7 @@ def proj_grad_desc(x, y, model, step_size=0.01, epsilon=4 * 1/255, steps=50, tar
             else:
                 adversary += curr_grad
         adversary = torch.max(torch.min(adversary, max_diff), min_diff)
-        # adversary = adversary.clamp(0, 1)
     return adversary.detach()
-
-tasks = [
-    {
-        'id': 1,
-        'picName': u'Buy groceries',
-        'content': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'epsilon': 0.003,
-        'target': 512,
-        'done': False
-    },
-    {
-        'id': 2,
-        'picName': u'python',
-        'content': u'Need to find a good Python tutorial on the web',
-        'epsilon': 0.003,
-        'target': 512,
-        'done': True
-    }
-]
-
 
 @app.route('/images', methods=['GET'])
 def get_tasks():
@@ -75,35 +59,25 @@ def get_tasks():
 
 @app.route('/images', methods=['POST'])
 def create_task():
-    print(request.json)
-    if not request.json or 'picName' not in request.json or 'content' not in request.json:
+    # print(request.json)
+    if not request.json or 'content' not in request.json:
         abort(400)
-    task = {
-        'id': tasks[-1]['id'] + 1,
-        'picName': request.json['picName'],
-        'content': request.json['content'],
-        'epsilon': request.json.get("epsilon", 0.003),
-        'target': request.json.get("target", -1),
-        'ogClass': -1,
-        'adClass': -1,
-        'rbClass': -1,
-        'done': False
-    }
     # parses request
     content = request.json['content']
-    epsilon = request.json['epsilon']
-    target = request.json['target'] if request.json['target'] != -1 else None
-    content = ... # TODO: Something goes here
+    epsilon = float(request.json['epsilon'])
+    target = torch.tensor([int(request.json['target'])]) if request.json['target'] != -1 else None
+    content = Image.open(BytesIO(base64.b64decode(content.split(',',1)[1]))) # TODO: Something goes here
+    # content.save('test.jpg')
     json_obj = {}
     
     # Gets initial prediction on image
-    input_tensor = preprocess(content)
+    input_tensor = preprocess(content).unsqueeze(0)
     output = model(input_tensor)
     prob_dist = torch.nn.functional.softmax(output[0], dim=0)
     init_prob, init_pred = prob_dist.topk(5)
     json_obj['init_prob'] = init_prob.tolist()
     json_obj['init_pred'] = init_pred.tolist()
-    best_label = init_pred[0]
+    best_label = torch.tensor([init_pred[0]])
     
     # Getting adversarial image
     adv = proj_grad_desc(input_tensor, best_label, model, epsilon=epsilon, target=target)
@@ -121,17 +95,9 @@ def create_task():
     # json_obj['robust_prob'] = robust_prob.tolist()
     # json_obj['robust_pred'] = robust_pred.tolist()
 
+    json_obj
+
     return jsonify(json_obj), 201
-
-
-@app.route('/check', methods=['GET'])
-def delete_task():
-    name = request.args.get("name")
-    task = [task for task in tasks if task['picName'] == name]
-    if len(task) == 0:
-        return jsonify({'result': False})
-    return jsonify({'result': task[0]['done']})
-
 
 if __name__ == '__main__':
     app.run(debug=True)

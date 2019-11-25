@@ -36,38 +36,17 @@ class App extends React.Component {
 
     _handleSubmit(e) {
         e.preventDefault();
-        // console.warn(this.state)
-        this.upload(this.state.file).then(data => console.error(data));
+        // this.upload().then(data => this.setState({imagePrev: data.content}));
+
+        this.upload().then(data => console.log(data));
     }
 
-    async upload(imageFile) {
-        // return new Promise((resolve, reject) => {
-        //     let imageFormData = new FormData();
-        
-        //     imageFormData.append('imageFile', imageFile);
-            
-        //     var xhr = new XMLHttpRequest();
-            
-        //     xhr.open('post', '/upload', true);
-            
-        //     xhr.onload = function () {
-        //     if (this.status === 200) {
-        //         resolve(this.response);
-        //     } else {
-        //         reject(this.statusText);
-        //     }
-        //     };
-            
-        //     xhr.send(imageFormData);
-        // });
+    async upload() {
         const formData = {
-            'content': this.state.file,
-            'picName': this.state.file.name,
-        }//new FormData();
-
-        // formData.append('content', this.state.file);
-        // formData.append('picName', this.state.imagePreviewUrl);
-        // formData.append('file', this.state.file);
+            content: this.state.imagePreviewUrl,
+            epsilon: this.state.eps,
+            target: this.state.target
+        };
 
         const options = {
             method: 'POST',
@@ -81,9 +60,8 @@ class App extends React.Component {
         console.warn(options)
 
         const response = await fetch('http://127.0.0.1:5000/images', options);
-        const responseData = await response.text()
+        const responseData = await response.json()
         return responseData;
-        
     }
 
     async getDataAsync(name) {
@@ -102,6 +80,17 @@ class App extends React.Component {
                     </div>
             )
         }
+
+        const {imagePrev} = this.state;
+        let $imagePrevDisp = null;
+        if (imagePrev) {
+            $imagePrevDisp = (
+                    <div className="imgPreview">
+                        <img src={imagePrev} alt={'Error in rendering uploaded pic'}/>
+                    </div>
+            )
+        }
+
         return (
             <div>
                 <Container>
@@ -109,7 +98,7 @@ class App extends React.Component {
                         <Form>
                             <Form.Group>
                                 <Form.Label>Please upload an image:</Form.Label>
-                                <Form.Control type="file" placeholder="" accept="image/jpeg,image/png,image/jpg" onChange={this._handleImageChange}/>
+                                <Form.Control type="file" placeholder="" accept="image/jpeg,image/jpg" onChange={this._handleImageChange}/>
                             </Form.Group>
 
                             <Form.Group>
@@ -138,6 +127,9 @@ class App extends React.Component {
                     </Row>
                     <Row>
                         {$imagePreview}
+                    </Row>
+                    <Row>
+                        {$imagePrevDisp}
                     </Row>
                 </Container>
             </div>
