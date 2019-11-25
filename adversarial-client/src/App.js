@@ -4,16 +4,22 @@ import Slider from 'react-input-slider';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
- 
+
+const allClasses = require('./data.json');
+
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-                    target: -1, eps:  (4).toFixed(1), 
-                    defaultTarget:{ label: 'None', value: -1 }};
+                    target: -1, 
+                    eps:  (4).toFixed(1), 
+                    defaultTarget:{ label: 'None', value: -1 },
+                    stepSize: 0.05,
+                    numSteps: 10};
         this._handleImageChange = this._handleImageChange.bind(this);
         this._handleSubmit = this._handleSubmit.bind(this);
     }
@@ -27,7 +33,8 @@ class App extends React.Component {
         reader.onloadend = () => {
             this.setState({
                 file: file,
-                imagePreviewUrl: reader.result
+                imagePreviewUrl: reader.result,
+                adv_image: null
             });
         }
 
@@ -36,16 +43,16 @@ class App extends React.Component {
 
     _handleSubmit(e) {
         e.preventDefault();
-        // this.upload().then(data => this.setState({imagePrev: data.content}));
-
-        this.upload().then(data => console.log(data));
+        this.upload().then(data => this.setState({...data}));
     }
 
     async upload() {
         const formData = {
             content: this.state.imagePreviewUrl,
             epsilon: this.state.eps,
-            target: this.state.target
+            target: this.state.target,
+            step_size: this.state.stepSize,
+            num_steps: this.state.numSteps
         };
 
         const options = {
@@ -57,17 +64,9 @@ class App extends React.Component {
             }
         };
 
-        console.warn(options)
-
         const response = await fetch('http://127.0.0.1:5000/images', options);
         const responseData = await response.json()
         return responseData;
-    }
-
-    async getDataAsync(name) {
-        let response = await fetch(`https://api.github.com/users/${name}`);
-        let data = await response.json()
-        return data;
     }
 
     render() {
@@ -81,13 +80,30 @@ class App extends React.Component {
             )
         }
 
-        const {imagePrev} = this.state;
+        const {adv_image} = this.state;
         let $imagePrevDisp = null;
-        if (imagePrev) {
+        let $originalClass = null;
+        let $adversarialClass = null;
+        if (adv_image) {
             $imagePrevDisp = (
                     <div className="imgPreview">
-                        <img src={imagePrev} alt={'Error in rendering uploaded pic'}/>
+                        <img src={adv_image} alt={'Error in rendering uploaded pic'}/>
                     </div>
+            )
+            const initClass = this.state.init_pred.map((key, index) => <li key={key}>{allClasses[key] + ' '} <b>{(100 * this.state.init_prob[index]).toFixed(2) + '%'}</b></li>);
+
+            $originalClass = (
+                <ol>
+                {initClass}
+                </ol>
+            )
+
+            const advClass = this.state.adv_pred.map((key, index) => <li key={key}>{allClasses[key] + ' '} <b>{(100 * this.state.adv_prob[index]).toFixed(2) + '%'}</b></li>);
+
+            $adversarialClass = (
+                <ol>
+                {advClass}
+                </ol>
             )
         }
 
@@ -108,15 +124,40 @@ class App extends React.Component {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label>{'Please select perturbation contant: ' + this.state.eps + '/255'}</Form.Label>
+                                <Form.Label>{'Please select perturbation constant:'}<br/><b>{this.state.eps + '/255'}</b></Form.Label>
                                 <br/>
                                 <Slider
                                     axis="x"
                                     xstep={0.5}
                                     xmin={0} // TODO: change to 1
-                                    xmax={15}
+                                    xmax={255}
                                     x={this.state.eps}
                                     onChange={({ x }) => this.setState({ eps: parseFloat(x.toFixed(1)).toFixed(1) })}
+                                    />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>{'Please select step size: '}<br/><b>{this.state.stepSize}</b></Form.Label>
+                                <br/>
+                                <Slider
+                                    axis="x"
+                                    xstep={0.05}
+                                    xmin={0.05}
+                                    xmax={5}
+                                    x={this.state.stepSize}
+                                    onChange={({ x }) => this.setState({ stepSize: parseFloat(x.toFixed(2)).toFixed(2) })}
+                                    />
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label>{'Please select total number of steps: '}<br/><b>{this.state.numSteps}</b></Form.Label>
+                                <br/>
+                                <Slider
+                                    axis="x"
+                                    xstep={1}
+                                    xmin={1}
+                                    xmax={100}
+                                    x={this.state.numSteps}
+                                    onChange={({ x }) => this.setState({ numSteps: parseInt(x) })}
                                     />
                             </Form.Group>
 
@@ -126,10 +167,22 @@ class App extends React.Component {
                         </Form>
                     </Row>
                     <Row>
-                        {$imagePreview}
-                    </Row>
-                    <Row>
-                        {$imagePrevDisp}
+                        <Col>
+                            <Row>
+                                {$imagePreview}
+                            </Row>
+                            <Row>
+                                {$originalClass}
+                            </Row>
+                        </Col>
+                        <Col>
+                            <Row>
+                                {$imagePrevDisp}
+                            </Row>
+                            <Row>
+                                {$adversarialClass}
+                            </Row>
+                        </Col>
                     </Row>
                 </Container>
             </div>

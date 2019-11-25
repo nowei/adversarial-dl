@@ -49,14 +49,6 @@ def proj_grad_desc(x, y, model, step_size=0.05, epsilon=4 * 1/255, steps=50, tar
         adversary = torch.max(torch.min(adversary, max_diff), min_diff)
     return adversary.detach()
 
-@app.route('/images', methods=['GET'])
-def get_tasks():
-    name = request.args.get("name")
-    task = [task for task in tasks if task['picName'] == name]
-    if len(task) != 0:
-        return jsonify(task)
-    return jsonify({'tasks': tasks})
-
 @app.route('/images', methods=['POST'])
 def create_task():
     # print(request.json)
@@ -65,8 +57,10 @@ def create_task():
     # parses request
     content = request.json['content']
     epsilon = float(request.json['epsilon'])
+    step_size = float(request.json['step_size'])
+    num_steps = int(request.json['num_steps'])
     target = torch.tensor([int(request.json['target'])]) if request.json['target'] != -1 else None
-    content = Image.open(BytesIO(base64.b64decode(content.split(',',1)[1]))) # TODO: Something goes here
+    content = Image.open(BytesIO(base64.b64decode(content.split(',',1)[1])))
     # content.save('test.jpg')
     json_obj = {}
     
@@ -80,7 +74,7 @@ def create_task():
     best_label = torch.tensor([init_pred[0]])
     
     # Getting adversarial image
-    adv = proj_grad_desc(input_tensor, best_label, model, epsilon=epsilon, target=target)
+    adv = proj_grad_desc(input_tensor, best_label, model, step_size=step_size, epsilon=epsilon, steps=num_steps, target=target)
 
     # Getting prediction on adversarial image
     output = model(adv)
@@ -89,23 +83,23 @@ def create_task():
     json_obj['adv_prob'] = adv_prob.tolist()
     json_obj['adv_pred'] = adv_pred.tolist()
 
-    adv[:, 0, :, :] = (adv[:, 0, :, :] - 0.485) / 0.229
-    adv[:, 1, :, :] = (adv[:, 1, :, :] - 0.456) / 0.224 
-    adv[:, 2, :, :] = (adv[:, 2, :, :] - 0.406) / 0.225
+    adv[:, 0, :, :] = adv[:, 0, :, :] * 0.229 + 0.485
+    adv[:, 1, :, :] = adv[:, 1, :, :] * 0.224 + 0.456
+    adv[:, 2, :, :] = adv[:, 2, :, :] * 0.225 + 0.406
 
-    byteArr = io.BytesIO()
+    byteArr = BytesIO()
     trans(adv.to('cpu')[0]).save(byteArr, format='JPEG')
 
-    json_obj['content'] = byteArr.getvalue()
+    content = ('data:image/format;base64,' + base64.b64encode(byteArr.getvalue()).decode('ascii'))
+
+    json_obj['adv_image'] = content
     # output = robust_model(adv)
     # prob_dist = torch.nn.functional.softmax(output[0], dim=0)
     # robust_prob, robust_pred = prob_dist.topk(5)
     # json_obj['robust_prob'] = robust_prob.tolist()
     # json_obj['robust_pred'] = robust_pred.tolist()
 
-    json_obj
-
-    return jsonify(json_obj), 201
+    return jsonify(json_obj), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
