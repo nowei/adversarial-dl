@@ -20,3 +20,19 @@
 .App-link {
   color: #09d3ac;
 }
+
+.imgPreview {
+  text-align: center;
+  margin: 5px 15px;
+  height: 300px;
+  width: 300px;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+}
+
+.imgPreview > img {
+  height: 99%;
+  width: 99%;
+}
