@@ -89,6 +89,14 @@ def create_task():
     json_obj['adv_prob'] = adv_prob.tolist()
     json_obj['adv_pred'] = adv_pred.tolist()
 
+    adv[:, 0, :, :] = (adv[:, 0, :, :] - 0.485) / 0.229
+    adv[:, 1, :, :] = (adv[:, 1, :, :] - 0.456) / 0.224 
+    adv[:, 2, :, :] = (adv[:, 2, :, :] - 0.406) / 0.225
+
+    byteArr = io.BytesIO()
+    trans(adv.to('cpu')[0]).save(byteArr, format='JPEG')
+
+    json_obj['content'] = byteArr.getvalue()
     # output = robust_model(adv)
     # prob_dist = torch.nn.functional.softmax(output[0], dim=0)
     # robust_prob, robust_pred = prob_dist.topk(5)
