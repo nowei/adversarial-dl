@@ -170,7 +170,7 @@ class App extends React.Component {
                                     />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" onClick={this._handleSubmit}>
+                            <Button variant="primary" type="submit" onClick={this._handleSubmit} disabled={!this.state.file}>
                                 Submit
                             </Button>
                         </Form>
