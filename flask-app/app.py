@@ -66,6 +66,7 @@ def create_task():
     
     # Gets initial prediction on image
     input_tensor = preprocess(content).unsqueeze(0)
+
     output = model(input_tensor)
     prob_dist = torch.nn.functional.softmax(output[0], dim=0)
     init_prob, init_pred = prob_dist.topk(5)
@@ -75,6 +76,13 @@ def create_task():
     
     # Getting adversarial image
     adv = proj_grad_desc(input_tensor, best_label, model, step_size=step_size, epsilon=epsilon, steps=num_steps, target=target)
+
+    input_tensor[:, 0, :, :] = input_tensor[:, 0, :, :] * 0.229 + 0.485
+    input_tensor[:, 1, :, :] = input_tensor[:, 1, :, :] * 0.224 + 0.456
+    input_tensor[:, 2, :, :] = input_tensor[:, 2, :, :] * 0.225 + 0.406
+    byteArr = BytesIO()
+    trans(input_tensor.to('cpu')[0]).save(byteArr, format='JPEG')
+    json_obj['orig_image'] = ('data:image/format;base64,' + base64.b64encode(byteArr.getvalue()).decode('ascii'))
 
     # Getting prediction on adversarial image
     output = model(adv)
