@@ -8,6 +8,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import Loader from 'react-loader-spinner'
 
 const allClasses = require('./data.json');
 
@@ -19,7 +20,9 @@ class App extends React.Component {
                     eps:  (4).toFixed(1), 
                     defaultTarget:{ label: 'None', value: -1 },
                     stepSize: 0.05,
-                    numSteps: 10};
+                    numSteps: 10,
+                    loading: false
+                };
         this._handleImageChange = this._handleImageChange.bind(this);
         this._handleSubmit = this._handleSubmit.bind(this);
     }
@@ -43,7 +46,8 @@ class App extends React.Component {
 
     _handleSubmit(e) {
         e.preventDefault();
-        this.upload().then(data => this.setState({...data}));
+        this.setState({loading: true})
+        this.upload().then(data => this.setState({...data, loading: false})).catch(() => this.setState({loading: false}));
     }
 
     async upload() {
@@ -104,6 +108,11 @@ class App extends React.Component {
                 <ol>
                 {advClass}
                 </ol>
+            )
+            $imagePreview = (
+                <div className="imgPreview">
+                    <img src={this.state.orig_image} alt={'Error in rendering uploaded pic'}/>
+                </div>
             )
         }
 
@@ -166,7 +175,19 @@ class App extends React.Component {
                             </Button>
                         </Form>
                     </Row>
-                    <Row>
+                    <Row hidden={!this.state.loading}>
+                        <Col large='true'> </Col>
+                        <Col large='true'>
+                            <Loader
+                                type="MutatingDots"
+                                color="#007bff"
+                                height={100}
+                                width={100}
+                                visible={this.state.loading}
+                                />
+                        </Col>
+                    </Row>
+                    <Row hidden={this.state.loading}>
                         <Col>
                             <Row>
                                 {$imagePreview}
