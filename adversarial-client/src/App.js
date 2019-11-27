@@ -120,90 +120,93 @@ class App extends React.Component {
             <div>
                 <Container>
                     <Row>
-                        <Form>
-                            <Form.Group>
-                                <Form.Label>Please upload an image:</Form.Label>
-                                <Form.Control type="file" placeholder="" accept="image/jpeg,image/jpg" onChange={this._handleImageChange}/>
-                            </Form.Group>
+                        <Col sm='true'>
+                            <Form>
+                                <Form.Group>
+                                    <Form.Label>Please upload an image:</Form.Label>
+                                    <Form.Control type="file" placeholder="" accept="image/jpeg,image/jpg" onChange={this._handleImageChange}/>
+                                </Form.Group>
 
-                            <Form.Group>
-                                {/* <Form.Label>{'Please select a target: ' + this.state.target}</Form.Label> */}
-                                <Form.Label>Please select a target:</Form.Label>
-                                <Dropdown onChange={(option) => this.setState({ target: option.value })} defaultValue={this.state.defaultTarget}/>
-                            </Form.Group>
+                                <Form.Group>
+                                    {/* <Form.Label>{'Please select a target: ' + this.state.target}</Form.Label> */}
+                                    <Form.Label>Please select a target:</Form.Label>
+                                    <Dropdown onChange={(option) => this.setState({ target: option.value })} defaultValue={this.state.defaultTarget}/>
+                                </Form.Group>
 
-                            <Form.Group>
-                                <Form.Label>{'Please select perturbation constant:'}<br/><b>{this.state.eps + '/255'}</b></Form.Label>
-                                <br/>
-                                <Slider
-                                    axis="x"
-                                    xstep={0.5}
-                                    xmin={0} // TODO: change to 1
-                                    xmax={255}
-                                    x={this.state.eps}
-                                    onChange={({ x }) => this.setState({ eps: parseFloat(x.toFixed(1)).toFixed(1) })}
-                                    />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>{'Please select step size: '}<br/><b>{this.state.stepSize}</b></Form.Label>
-                                <br/>
-                                <Slider
-                                    axis="x"
-                                    xstep={0.05}
-                                    xmin={0.05}
-                                    xmax={5}
-                                    x={this.state.stepSize}
-                                    onChange={({ x }) => this.setState({ stepSize: parseFloat(x.toFixed(2)).toFixed(2) })}
-                                    />
-                            </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>{'Please select perturbation constant:'}<br/><b>{this.state.eps + '/255'}</b></Form.Label>
+                                    <br/>
+                                    <Slider
+                                        axis="x"
+                                        xstep={0.5}
+                                        xmin={0} // TODO: change to 1
+                                        xmax={255}
+                                        x={this.state.eps}
+                                        onChange={({ x }) => this.setState({ eps: parseFloat(x.toFixed(1)).toFixed(1) })}
+                                        />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>{'Please select step size: '}<br/><b>{this.state.stepSize}</b></Form.Label>
+                                    <br/>
+                                    <Slider
+                                        axis="x"
+                                        xstep={0.05}
+                                        xmin={0.05}
+                                        xmax={5}
+                                        x={this.state.stepSize}
+                                        onChange={({ x }) => this.setState({ stepSize: parseFloat(x.toFixed(2)).toFixed(2) })}
+                                        />
+                                </Form.Group>
 
-                            <Form.Group>
-                                <Form.Label>{'Please select total number of steps: '}<br/><b>{this.state.numSteps}</b></Form.Label>
-                                <br/>
-                                <Slider
-                                    axis="x"
-                                    xstep={1}
-                                    xmin={1}
-                                    xmax={100}
-                                    x={this.state.numSteps}
-                                    onChange={({ x }) => this.setState({ numSteps: parseInt(x) })}
-                                    />
-                            </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>{'Please select total number of steps: '}<br/><b>{this.state.numSteps}</b></Form.Label>
+                                    <br/>
+                                    <Slider
+                                        axis="x"
+                                        xstep={1}
+                                        xmin={1}
+                                        xmax={100}
+                                        x={this.state.numSteps}
+                                        onChange={({ x }) => this.setState({ numSteps: parseInt(x) })}
+                                        />
+                                </Form.Group>
 
-                            <Button variant="primary" type="submit" onClick={this._handleSubmit} disabled={!this.state.file}>
-                                Submit
-                            </Button>
-                        </Form>
-                    </Row>
-                    <Row hidden={!this.state.loading}>
-                        <Col large='true'> </Col>
-                        <Col large='true'>
-                            <Loader
-                                type="MutatingDots"
-                                color="#007bff"
-                                height={100}
-                                width={100}
-                                visible={this.state.loading}
-                                />
+                                <Button variant="primary" type="submit" onClick={this._handleSubmit} disabled={!this.state.file}>
+                                    Submit
+                                </Button>
+                            </Form>
                         </Col>
-                    </Row>
-                    <Row hidden={this.state.loading}>
-                        <Col>
-                            <Row>
-                                {$imagePreview}
-                            </Row>
-                            <Row>
-                                {$originalClass}
-                            </Row>
-                        </Col>
-                        <Col>
-                            <Row>
-                                {$imagePrevDisp}
-                            </Row>
-                            <Row>
-                                {$adversarialClass}
-                            </Row>
-                        </Col>
+                    
+                        <div hidden={!this.state.loading}>
+                            {/* <Col large='true'> </Col> */}
+                            <Col large='true'>
+                                <Loader
+                                    type="MutatingDots"
+                                    color="#007bff"
+                                    height={100}
+                                    width={100}
+                                    visible={this.state.loading}
+                                    />
+                            </Col>
+                        </div>
+                        {/* <div hidden={this.state.loading}> */}
+                            <Col sm = 'true' hidden={this.state.loading}>
+                                <Row>
+                                    {$imagePreview}
+                                </Row>
+                                <Row>
+                                    {$originalClass}
+                                </Row>
+                            </Col>
+                            <Col sm = 'true' hidden={this.state.loading}>
+                                <Row>
+                                    {$imagePrevDisp}
+                                </Row>
+                                <Row>
+                                    {$adversarialClass}
+                                </Row>
+                            </Col>
+                        {/* </div> */}
                     </Row>
                 </Container>
             </div>
