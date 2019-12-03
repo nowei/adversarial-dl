@@ -3,8 +3,10 @@ Project repository for our deep learning project.
 
 # prerequisites
 Make sure that you have the following installed:
+
 Node: 
 - npm (the rest is installed for you when running npm install)
+
 Python: 
 - flask
 - flask_cors
