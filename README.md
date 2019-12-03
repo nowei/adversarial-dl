@@ -1,11 +1,32 @@
 # adversarial-dl
-Project repository for deep learning project
+Project repository for our deep learning project. 
+
+# prerequisites
+Make sure that you have the following installed:
+Node: 
+- npm (the rest is installed for you when running npm install)
+Python: 
+- flask
+- flask_cors
+- torch
+- pillow
+- torchvision
+- pytorch
+
+# How to run
+1. Start React
+```
+cd adversarial-client
+npm install # installs dependencies
+npm start
+```
+2. Start Flask. 
+- In another terminal, go to this repo
+```
+cd flask-app
+python3 app.py
+```
+3. Go to http://localhost:3000/ and do whatever!
+
 # TODO:
- - Write a description for the project
- - Add button to generate noise
- - Add button to add noise
- - Add button to evaluate image
- - Need to resize the image 
- - Need to be able to pass altered image to models and get results back
- - Need to display the result of the classification somewhere, maybe top 5
- - 
+- Write installer for python dependencies. 
