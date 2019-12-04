@@ -59,9 +59,9 @@ def create_task():
     epsilon = float(request.json['epsilon'])
     step_size = float(request.json['step_size'])
     num_steps = int(request.json['num_steps'])
-    target = torch.tensor([int(request.json['target'])]) if request.json['target'] != -1 else None
+    target = int(request.json['target'])
+    target = torch.tensor([target]) if target != -1 else None
     content = Image.open(BytesIO(base64.b64decode(content.split(',',1)[1])))
-    # content.save('test.jpg')
     json_obj = {}
     
     # Gets initial prediction on image
@@ -75,7 +75,7 @@ def create_task():
     best_label = torch.tensor([init_pred[0]])
     
     # Getting adversarial image
-    adv = proj_grad_desc(input_tensor, best_label, model, step_size=step_size, epsilon=epsilon / 255, steps=num_steps, target=target)
+    adv = proj_grad_desc(input_tensor, best_label, model, step_size=step_size, epsilon=epsilon, steps=num_steps, target=target)
 
     input_tensor[:, 0, :, :] = input_tensor[:, 0, :, :] * 0.229 + 0.485
     input_tensor[:, 1, :, :] = input_tensor[:, 1, :, :] * 0.224 + 0.456

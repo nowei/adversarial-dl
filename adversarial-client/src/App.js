@@ -53,11 +53,13 @@ class App extends React.Component {
     async upload() {
         const formData = {
             content: this.state.imagePreviewUrl,
-            epsilon: this.state.eps,
+            epsilon: (this.state.eps / 255),
             target: this.state.target,
             step_size: this.state.stepSize,
             num_steps: this.state.numSteps
         };
+
+        console.error(formData)
 
         const options = {
             method: 'POST',
@@ -183,34 +185,25 @@ class App extends React.Component {
                                 <Loader
                                     type="MutatingDots"
                                     color="#007bff"
-                                    height={100}
-                                    width={100}
+                                    height={200}
+                                    width={200}
                                     visible={this.state.loading}
                                     />
                             </Col>
                         </div>
-                        {/* <div hidden={this.state.loading}> */}
-                            <Col sm = 'true' hidden={this.state.loading}>
-                                <Row>
+                            <Col md = 'true' hidden={this.state.loading}>
                                     {$imagePreview}
-                                </Row>
-                                <Row>
                                     {$originalClass}
-                                </Row>
                             </Col>
-                            <Col sm = 'true' hidden={this.state.loading}>
-                                <Row>
+                            {/* <Col sm = 'true' hidden={this.state.loading}> </Col> */}
+                            <Col md = 'true' hidden={this.state.loading}>
                                     {$imagePrevDisp}
-                                </Row>
-                                <Row>
                                     {$adversarialClass}
-                                </Row>
                             </Col>
-                        {/* </div> */}
                     </Row>
                 </Container>
             </div>
-        );
+        )
     }
 }
 export default App;
