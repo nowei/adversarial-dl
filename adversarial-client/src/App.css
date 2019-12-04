@@ -23,21 +23,25 @@
 
 .imgPreview {
   text-align: center;
-  margin: 5px 15px;
+  margin: 20px;
   height: 300px;
   width: 300px;
-  border-left: 1px solid gray;
-  border-right: 1px solid gray;
-  border-top: 1px solid gray;
-  border-bottom: 1px solid gray;
 }
 
 .imgPreview > img {
-  height: 99%;
-  width: 99%;
+  height: 100%;
+  width: 100%;
+  border: 2px solid gray;
+  border-left: 3px solid gray;
 }
 
 li {
   margin:10px 10px 0 0;
-  width: 256px;
+  width: 300px;
+}
+
+.loader {
+  position: relative;
+  left: 40%;
+  top: 40%;
 }

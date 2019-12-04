@@ -1,11 +1,7 @@
 import React from 'react';
 import Dropdown from './Dropdown'
 import Slider from 'react-input-slider';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
+import { Form, Button, Row, Col, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Loader from 'react-loader-spinner'
@@ -41,7 +37,9 @@ class App extends React.Component {
             });
         }
 
-        reader.readAsDataURL(file)
+        if (file) {
+            reader.readAsDataURL(file)
+        }
     }
 
     _handleSubmit(e) {
@@ -122,7 +120,7 @@ class App extends React.Component {
             <div>
                 <Container>
                     <Row>
-                        <Col sm='true'>
+                        <Col lg={4}>
                             <Form>
                                 <Form.Group>
                                     <Form.Label>Please upload an image:</Form.Label>
@@ -130,7 +128,6 @@ class App extends React.Component {
                                 </Form.Group>
 
                                 <Form.Group>
-                                    {/* <Form.Label>{'Please select a target: ' + this.state.target}</Form.Label> */}
                                     <Form.Label>Please select a target:</Form.Label>
                                     <Dropdown onChange={(option) => this.setState({ target: option.value })} defaultValue={this.state.defaultTarget}/>
                                 </Form.Group>
@@ -141,7 +138,7 @@ class App extends React.Component {
                                     <Slider
                                         axis="x"
                                         xstep={0.5}
-                                        xmin={0} // TODO: change to 1
+                                        xmin={0}
                                         xmax={255}
                                         x={this.state.eps}
                                         onChange={({ x }) => this.setState({ eps: parseFloat(x.toFixed(1)).toFixed(1) })}
@@ -178,28 +175,24 @@ class App extends React.Component {
                                 </Button>
                             </Form>
                         </Col>
-                    
-                        <div hidden={!this.state.loading}>
-                            {/* <Col large='true'> </Col> */}
-                            <Col large='true'>
-                                <Loader
-                                    type="MutatingDots"
-                                    color="#007bff"
-                                    height={200}
-                                    width={200}
-                                    visible={this.state.loading}
-                                    />
-                            </Col>
-                        </div>
-                            <Col md = 'true' hidden={this.state.loading}>
-                                    {$imagePreview}
-                                    {$originalClass}
-                            </Col>
-                            {/* <Col sm = 'true' hidden={this.state.loading}> </Col> */}
-                            <Col md = 'true' hidden={this.state.loading}>
-                                    {$imagePrevDisp}
-                                    {$adversarialClass}
-                            </Col>
+                        <Col lg={8} hidden={!this.state.loading}>
+                            <Loader
+                                className="loader"
+                                type="MutatingDots"
+                                color="#007bff"
+                                height={100}
+                                width={100}
+                                visible={this.state.loading}
+                                />
+                        </Col>
+                        <Col lg={4} hidden={this.state.loading}>
+                                {$imagePreview}
+                                {$originalClass}
+                        </Col>
+                        <Col lg={4} hidden={this.state.loading}>
+                                {$imagePrevDisp}
+                                {$adversarialClass}
+                        </Col>
                     </Row>
                 </Container>
             </div>
