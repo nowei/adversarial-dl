@@ -109,17 +109,23 @@ class App extends React.Component {
             const initClass = this.state.init_pred.map((key, index) => <li key={key}>{allClasses[key] + ' '} <b>{(100 * this.state.init_prob[index]).toFixed(2) + '%'}</b></li>);
 
             $originalClass = (
+                <div>
+                <b>Original Classification:</b>
                 <ol>
                 {initClass}
                 </ol>
+                </div>
             )
 
             const advClass = this.state.adv_pred.map((key, index) => <li key={key}>{allClasses[key] + ' '} <b>{(100 * this.state.adv_prob[index]).toFixed(2) + '%'}</b></li>);
 
             $adversarialClass = (
+                <div>
+                <b>Adversarial Classification:</b>
                 <ol>
                 {advClass}
                 </ol>
+                </div>
             )
             $imagePreview = (
                 <div className="imgPreview">

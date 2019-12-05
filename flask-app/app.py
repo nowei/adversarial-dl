@@ -9,6 +9,9 @@ from torchvision import transforms
 import torch.nn.functional as F
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('agg')
 
 app = Flask(__name__)
 CORS(app)
@@ -35,10 +38,18 @@ def proj_grad_desc(x, y, model, step_size=0.05, epsilon=4 * 1/255, steps=50, tar
     adversary = x.clone().detach().requires_grad_(True).to(x.device)
     max_diff = x + epsilon
     min_diff = x - epsilon
-    for i in range(steps):
+    # actual_prob = []
+    # target_prob = []
+    # iters = []
+    for i in range(steps + 1):
         curr = adversary.clone().detach().requires_grad_(True).to(adversary.device)
         output = model(curr)
         loss = loss_fn(output, target if target else y)
+        prob_dist = torch.nn.functional.softmax(output[0], dim=0)
+        # actual_prob.append(prob_dist[y].item())
+        # target_prob.append(prob_dist[target].item())
+        # iters.append(i)
+
         loss.backward()
         with torch.no_grad():
             curr_grad = curr.grad * step_size 
@@ -47,6 +58,12 @@ def proj_grad_desc(x, y, model, step_size=0.05, epsilon=4 * 1/255, steps=50, tar
             else:
                 adversary += curr_grad
         adversary = torch.max(torch.min(adversary, max_diff), min_diff)
+    # plt.plot(iters, actual_prob, 'g-.', label='actual class: ' + classes[y.item()])
+    # plt.plot(iters, target_prob, 'r-.',label='targeted class: ' + classes[target.item()])
+    # plt.xlabel('step number')
+    # plt.ylabel('% classification')
+    # plt.legend(loc="upper left")
+    # plt.savefig('analysis.png')
     return adversary.detach()
 
 @app.route('/images', methods=['POST'])
@@ -110,4 +127,4 @@ def create_task():
     return jsonify(json_obj), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
