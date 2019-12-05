@@ -15,7 +15,7 @@ CORS(app)
 
 loss_fn = nn.CrossEntropyLoss()
 
-model = torch.hub.load('pytorch/vision:v0.4.2', 'resnet18', pretrained=True)
+model = torch.hub.load('pytorch/vision:v0.4.2', 'resnet34', pretrained=True)
 model.eval()
 preprocess = transforms.Compose([
     transforms.Resize(256),

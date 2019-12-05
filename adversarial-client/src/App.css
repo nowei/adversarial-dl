@@ -45,3 +45,9 @@ li {
   left: 40%;
   top: 40%;
 }
+
+.justify-content-md-center {
+  position: relative;
+  top: 10%;
+  margin-top: 20px;
+}

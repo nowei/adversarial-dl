@@ -1,7 +1,7 @@
 import React from 'react';
 import Dropdown from './Dropdown'
 import Slider from 'react-input-slider';
-import { Form, Button, Row, Col, Container } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container, Navbar } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Loader from 'react-loader-spinner'
@@ -21,6 +21,7 @@ class App extends React.Component {
                 };
         this._handleImageChange = this._handleImageChange.bind(this);
         this._handleSubmit = this._handleSubmit.bind(this);
+        this._handleEpsilonInput = this._handleEpsilonInput.bind(this);
     }
 
     _handleImageChange(e) {
@@ -39,6 +40,17 @@ class App extends React.Component {
 
         if (file) {
             reader.readAsDataURL(file)
+        }
+    }
+
+    _handleEpsilonInput(e) {
+        e.preventDefault();
+        if (e.target.value) {
+            var eps = parseFloat(e.target.value)
+            eps = Math.min(Math.max(0, eps), 255)
+            this.setState({ eps: eps.toFixed(1) })
+        } else {
+            this.setState({ eps: (4).toFixed(1) })
         }
     }
 
@@ -118,34 +130,40 @@ class App extends React.Component {
 
         return (
             <div>
+                <Navbar bg="dark" variant="dark">
+                    <Navbar.Brand href="#home">
+                    <img
+                        alt=""
+                        src="/logo.svg"
+                        width="30"
+                        height="30"
+                        className="d-inline-block align-top"
+                    />{' '}
+                    <b>Neural Networks, They Just (Don't) Work</b>
+                    </Navbar.Brand>
+                </Navbar>
                 <Container>
-                    <Row>
+                    <Row className="justify-content-md-center">
                         <Col lg={4}>
                             <Form>
                                 <Form.Group>
-                                    <Form.Label>Please upload an image:</Form.Label>
+                                    <Form.Label><b>Please upload an image:</b></Form.Label>
                                     <Form.Control type="file" placeholder="" accept="image/jpeg,image/jpg" onChange={this._handleImageChange}/>
                                 </Form.Group>
 
                                 <Form.Group>
-                                    <Form.Label>Please select a target:</Form.Label>
+                                    <Form.Label><b>Please select a target:</b></Form.Label>
                                     <Dropdown onChange={(option) => this.setState({ target: option.value })} defaultValue={this.state.defaultTarget}/>
                                 </Form.Group>
 
                                 <Form.Group>
-                                    <Form.Label>{'Please select perturbation constant:'}<br/><b>{this.state.eps + '/255'}</b></Form.Label>
+                                    <Form.Label><b>{'Please select perturbation constant:'}</b><br/>{this.state.eps + '/255'}</Form.Label>
                                     <br/>
-                                    <Slider
-                                        axis="x"
-                                        xstep={0.5}
-                                        xmin={0}
-                                        xmax={255}
-                                        x={this.state.eps}
-                                        onChange={({ x }) => this.setState({ eps: parseFloat(x.toFixed(1)).toFixed(1) })}
-                                        />
+                                    <Form.Control type="number" min="0" max="255" step="0.5" placeholder={this.state.eps} 
+                                            onChange={this._handleEpsilonInput}/>
                                 </Form.Group>
                                 <Form.Group>
-                                    <Form.Label>{'Please select step size: '}<br/><b>{this.state.stepSize}</b></Form.Label>
+                                    <Form.Label><b>{'Please select step size: '}</b><br/>{this.state.stepSize}</Form.Label>
                                     <br/>
                                     <Slider
                                         axis="x"
@@ -158,13 +176,13 @@ class App extends React.Component {
                                 </Form.Group>
 
                                 <Form.Group>
-                                    <Form.Label>{'Please select total number of steps: '}<br/><b>{this.state.numSteps}</b></Form.Label>
+                                    <Form.Label><b>{'Please select total number of steps: '}</b><br/>{this.state.numSteps}</Form.Label>
                                     <br/>
                                     <Slider
                                         axis="x"
                                         xstep={1}
                                         xmin={1}
-                                        xmax={100}
+                                        xmax={25}
                                         x={this.state.numSteps}
                                         onChange={({ x }) => this.setState({ numSteps: parseInt(x) })}
                                         />
