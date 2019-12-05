@@ -132,7 +132,7 @@ class App extends React.Component {
             <div>
                 <Navbar bg="dark" variant="dark">
                     <Navbar.Brand href="#home">
-                    <b>Neural Networks, They Just (Don't) Work</b>
+                    <b>Deep Neural Networks, They Just (Don't) Work</b>
                     </Navbar.Brand>
                 </Navbar>
                 <Container>
